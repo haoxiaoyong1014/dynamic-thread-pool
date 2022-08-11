@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: dynamic-thread-pool-demo
+
+server:
+  port: 9093
+
+nacos:
+  config:
+    server-addr: 127.0.0.1:8848
+    type: yaml
+    data-ids: ${spring.application.name}
+    auto-refresh: true
+    group: DEFAULT_GROUP
+    bootstrap:
+      enable: true
+      log-enable: true
+
+#spring:
+#  dynamic:
+#    tp:
+#      enabled: true
+#      executors:
+#        - threadPoolName: commonExecutor
+#          corePoolSize: 2
+#          maximumPoolSize: 8
+#          queueCapacity: 200
+#          keepAliveTime: 50
+#          allowCoreThreadTimeOut: false
+#        - threadPoolName: dynamicThreadPoolExecutor1
+#          corePoolSize: 4
+#          maximumPoolSize: 6
+#          queueCapacity: 400
+#          keepAliveTime: 50
+#          allowCoreThreadTimeOut: false
+
