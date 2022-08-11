@@ -1,10 +1,10 @@
 #### 利用Nacos作为配置中心动态修改线程池
 
-**背景**
+#### 背景
 
-这篇文章的主要核心原理都来自于这个开源项目[dynamic-tp](https://dynamictp.cn/)，可以说是对这个开源项目的源码分析，也是对这个开源项目中设计到的技术点进行学习总结。
+这篇文章的主要核心原理都来自于这个开源项目[dynamic-tp](https://dynamictp.cn/)，可以说是对这个开源项目的源码分析，也是对这个开源项目中涉及到的技术点进行学习总结。
 
-**从这篇文章中能学到的技术点**
+#### 从这篇文章中能学到的技术点
 
 从这篇文章中能学到的技术点，也就是从这个[dynamic-tp](https://dynamictp.cn/)开源项目中学习到的技术点（这里只列举了这个项目的冰山一角）：
 
@@ -13,7 +13,7 @@
 * .yml文件映射到具体的对象中，对比是否有变更。
 * Spring提供的扩展点学习。
 
-**那我们开始吧**
+#### 那我们开始吧
 
 以下都是对[dynamic-tp](https://dynamictp.cn/)这个开源项目进行了简化，首先看一下我的Nacos配置以及配置类：
 
@@ -100,7 +100,7 @@ public class ThreadPoolProperties {
 
 介绍完了基础的配置，那我们开始介绍核心一点东西：**监听Nacos配置变更的事件**。
 
-监听Nacos配置变更的方式有多多种，可以使用`实现 ApplicationListener<NacosConfigReceivedEvent>`的方式也可以使用注解`@NacosConfigListener`。
+监听Nacos配置变更的方式有多种，可以使用`实现 ApplicationListener<NacosConfigReceivedEvent>`的方式也可以使用注解`@NacosConfigListener`。
 
 下面我们就使用`实现 ApplicationListener<NacosConfigReceivedEvent>`的方式：
 
@@ -117,9 +117,9 @@ public class NacosRefresher extends AbstractRefresher implements ApplicationList
 
 当Nacos的配置发生了变更的时候会执行`onApplicationEvent`方法；
 
-AbstractRefresher类提供了refresher方法，至于为啥做成一个抽象的是因为不过Nacos可以作为配置中心，zookeeper也可以。像[dynamic-tp](https://github.com/dromara/dynamic-tp)作者不光提供了Nacos,Zookeeper,还有Apollo。
+AbstractRefresher类提供了refresher方法，至于为啥做成一个抽象的是因为不光Nacos可以作为配置中心，zookeeper也可以。像[dynamic-tp](https://github.com/dromara/dynamic-tp)作者不光提供了Nacos,Zookeeper,还有Apollo。
 
-上面提到了当Nacos的配置发生了变更的时候会执行`onApplicationEvent`方法，`onApplicationEvent`方法中中调用了AbstractRefresher类提供的`refresher`方法:
+上面提到了当Nacos的配置发生了变更的时候会执行`onApplicationEvent`方法，`onApplicationEvent`方法中调用了AbstractRefresher类提供的`refresher`方法:
 
 ```java
 @Slf4j
@@ -260,7 +260,7 @@ public class DynamicThreadPoolRegistry {
 
 ![image.png](https://upload-images.jianshu.io/upload_images/15181329-46fab9c23bea361a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
-至此动态修改线程池的参数就讲述完了。示例中涉及到代码没有完全贴出来，此示例代码在github上
+至此动态修改线程池的参数就讲述完了。示例中涉及到代码没有完全贴出来，此示例代码在github上[dynamic-thread-pool](https://github.com/haoxiaoyong1014/dynamic-thread-pool)
 
 在这里你会看到一个有点陌生的队列`VariableLinkedBlockingQueue`,这个队列是可以改变容量的，我们一般创建线程池时使用的队列是`LinkedBlockingQueue`，它的默认大小是`Integer.MAX_VALUE`容易内存溢出，当然你也可以在构造`LinkedBlockingQueue`时指定capacity容量大小，但是capacity是final修饰是没有办法改变的，`VariableLinkedBlockingQueue`队列就给它完善了这一点。使用`VariableLinkedBlockingQueue`队列我们就可以根据自身业务发展情况动态设置队列容量的大小。当然在[dynamic-tp](https://github.com/dromara/dynamic-tp)项目中还有设计比较巧妙的队列`MemorySafeLinkedBlockingQueue`，内存安全队列。这些队列都是可以拿到自己项目中直接使用的。这两个队列在很多开源项目中都使用到了，设计确实很巧妙。在这个项目中学习到了很多。
 
@@ -270,9 +270,9 @@ public class DynamicThreadPoolRegistry {
 
 我的示例中没有涉及到这一点，但是dynamic-tp项目中是涉及到了的。下面我们就简单介绍一下这个扩展点，不光Mybatis使用到这个扩展点，很多需要融合Spring的开源框架都会使用到：Nacos，Dubbo，Apollo，RocketMQ太多了就不列举了。
 
-`项目启动之初获取Nacos配置`这个上面也介绍了一种方式使用`@ConfigurationProperties(prefix = "spring.dynamic.tp")`将配置映射到指定的对象中，当然这个是有条件的，就是在此对象的类必须是Spring Bean(已经在IOC容器中)。
+`项目启动之初获取Nacos配置`这个上面也介绍了一种方式使用`@ConfigurationProperties(prefix = "spring.dynamic.tp")`将配置映射到指定的对象中，当然这个是有条件的，就是在使用此对象的类必须是Spring Bean(已经在IOC容器中)。
 
-那如果不是呢？当然有别的方法可以在Environment中获取。既然说到这里就把方法贴出来吧：
+那如果不是呢？当然有别的方法，可以在Environment中获取。既然说到这里就把方法贴出来吧：
 
 ```java
 @Slf4j
@@ -289,7 +289,7 @@ public class DtpBeanDefinitionRegistrar implements EnvironmentAware {
 
        	DynamicThreadPoolProperties dtpProperties = new DynamicThreadPoolProperties();
         PropertiesBinder.bindDtpProperties(environment, dtpProperties);
-        ThreadPoolExecutor executors = dtpProperties.getExecutors();
+        List<ThreadPoolProperties> executors = dtpProperties.getExecutors();
     }
 }  
 ```
@@ -364,7 +364,7 @@ public class MyImportBeanDefinitionRegistrar implements ImportBeanDefinitionRegi
 }
 ```
 
-**注意：**要在启动类，或者配置类上加`@Import(MyImportBeanDefinitionRegistrar.class)`
+**注意**：要在启动类，或者配置类上加`@Import(MyImportBeanDefinitionRegistrar.class)`
 
 在[dynamic-tp](https://github.com/dromara/dynamic-tp)项目中使用了构造方法注入的，原理就是：拿到yml文件中配置的线程池构造参数，我们一般构造一个线程池都需要：
 
